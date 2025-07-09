@@ -1,67 +1,95 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { View, Text, Button, ScrollView, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
-  const [scores, setScores] = useState([0, 0, 0, 0]);
+  
+  const players = ["Alice", "Bob", "Charlie", "Diana"];
+  const [scores, setScores] = useState(
+    players.map(() => []) // array gol pentru fiecare jucător
+  );
 
-  const addPoint = (playerIndex) => {
+  const addScore = (playerIndex, value) => {
     const newScores = [...scores];
-    newScores[playerIndex] += 1;
+    newScores[playerIndex].push(value);
     setScores(newScores);
   };
 
+  const totalScore = (playerIndex) =>
+    scores[playerIndex].reduce((a, b) => a + b, 0);
   const resetScores = () => {
-    setScores([0, 0, 0, 0]);
+  setScores(players.map(() => [])); // resets all 4 players to 0
   };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🎯 Whist Score Tracker</Text>
-      {scores.map((score, index) => (
-        <View key={index} style={styles.row}>
-          <Text style={styles.player}>Player {index + 1}</Text>
-          <Text style={styles.score}>{score}</Text>
-          <Button title="+1" onPress={() => addPoint(index)} />
+      <Text style={styles.title}>🃏 Whist Score Table</Text>
+      <ScrollView horizontal>
+        <View>
+          {/* Header cu runde */}
+          <View style={styles.row}>
+            <Text style={styles.headerCell}>Player</Text>
+            {[...Array(10).keys()].map((round) => (
+              <Text key={round} style={styles.headerCell}>
+                R{round + 1}
+              </Text>
+            ))}
+            <Text style={styles.headerCell}>Total</Text>
+          </View>
+
+          {/* Rândurile cu jucători */}
+          {players.map((player, pIndex) => (
+            <View key={pIndex} style={styles.row}>
+              <Text style={styles.cell}>{player}</Text>
+              {[...Array(10).keys()].map((round) => (
+                <Text key={round} style={styles.cell}>
+                  {scores[pIndex][round] ?? "-"}
+                </Text>
+              ))}
+              <Text style={styles.cell}>{totalScore(pIndex)}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+<View style={{ marginTop: 20 }}>
+  <Button
+    title="Reset Scores"
+    onPress={resetScores}
+    color="red" // optional: make it red to stand out
+  />
+</View>
+      {/* Adaugă puncte */}
+      {players.map((player, pIndex) => (
+        <View key={pIndex} style={styles.buttonRow}>
+          <Text>{player}</Text>
+          <Button title="+1" onPress={() => addScore(pIndex, 1)} />
+          <Button title="+2" onPress={() => addScore(pIndex, 2)} />
         </View>
       ))}
-      <View style={{ marginTop: 20 }}>
-        <Button title="Reset Scores" onPress={resetScores} color="red" />
-      </View>
-      <StatusBar style="auto" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
+  row: { flexDirection: "row" },
+  headerCell: {
+    width: 60,
+    fontWeight: "bold",
+    textAlign: "center",
+    borderWidth: 1,
   },
-  player: { marginRight: 10, fontSize: 18 },
-  score: { marginRight: 10, fontSize: 18, fontWeight: "bold" },
+  cell: {
+    width: 60,
+    textAlign: "center",
+    borderWidth: 1,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 5,
+  },
 });
 
-//registerRootComponent(App);
-/*export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}*/
-
-/*const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});*/
 
 
